@@ -1,0 +1,36 @@
+{
+  "name": "tdesign-react-demo",
+  "version": "1.0.0",
+  "description": "React example starter project",
+  "keywords": [
+    "react",
+    "starter"
+  ],
+  "main": "src/main.js",
+  "dependencies": {
+    "ace-builds": "^1.4.13",
+    "react": "17.0.2",
+    "react-ace": "^9.5.0",
+    "react-dom": "17.0.2",
+    "react-froala-wysiwyg": "^4.0.7",
+    "react-router-dom": "^6.0.0-beta.0",
+    "react-scripts": "^4.0.0",
+    "tdesign-icons-react": "0.0.5",
+    "tdesign-react": "*"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

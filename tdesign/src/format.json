@@ -1,0 +1,23 @@
+{
+  "Response": {
+    "Code": 200,
+    "Message": "操作成功",
+    "RequestID": "eac6b301-a322-493a-8e36-83b29545939",
+    "InvitedUsers": [
+      {
+        "Brand": "linglong",
+        "AvatarURL": "https://1qBN132",  /* Url改为URL*/
+        "PhoneMasked": "122****4334",    /* 脱敏，字段说明已屏蔽 */
+        "CreationTime": "2021-11-26 11:17:12", /* CreateTime 改 CreationTime */
+        "LingLongID": 10990,             /* LLId 改全拼，Id改为ID*/
+        "LingLongMemberSyncID": 10990,   /* 同上 */
+        "Gender": 1,
+        "NickName": "Mike",
+        "UserType": "passenger",
+        "StoreId": 0,                    /* shop 改 store */
+        "Name": "张三",
+        "StoreCode": "xxx",              /* shop 改 store */
+      }
+    ]
+  }
+}
