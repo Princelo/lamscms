@@ -4,8 +4,12 @@ declare(strict_types=1);
 use App\Actions\Article\CreateArticleAction;
 use App\Actions\Article\DeleteArticleAction;
 use App\Actions\Article\DeleteArticlesAction;
+use App\Actions\Article\PublishArticleAction;
+use App\Actions\Article\PublishArticlesAction;
 use App\Actions\Article\UpdateArticleAction;
 use App\Actions\Article\ViewArticleAction;
+use App\Actions\Settings\UpdateSettingsAction;
+use App\Actions\Settings\ViewSettingsAction;
 use App\Actions\User\ChangePasswordAction;
 use App\Actions\User\CreateUserAction;
 use App\Actions\User\DeleteUserAction;
@@ -33,4 +37,7 @@ return function (App $app) {
     $app->delete('/articles', DeleteArticlesAction::class);
     $app->post('/article/publish-article/{id}', PublishArticleAction::class);
     $app->post('/article/publish-articles', PublishArticlesAction::class);
+
+    $app->patch('/settings', UpdateSettingsAction::class);
+    $app->get('/settings', ViewSettingsAction::class);
 };
