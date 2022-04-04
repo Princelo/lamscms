@@ -11,6 +11,7 @@ import {
     ConfigPage,
     CategoryPage,
     EditCategoryPage,
+    CreateCategoryPage,
     ManagerPage,
     EditManagerPage,
     ChangePasswordPage,
@@ -33,7 +34,7 @@ function App() {
             <Route path="/code-edit/:id" element={<CodeEdit {...states}/>}/>
             <Route path="/config" element={<ConfigPage {...states}/>}/>
             <Route path="/category" element={<CategoryPage {...states}/>}/>
-            <Route path="/create-category" element={<EditCategoryPage {...states}/>}/>
+            <Route path="/create-category" element={<CreateCategoryPage {...states}/>}/>
             <Route path="/edit-category/:id" element={<EditCategoryPage {...states}/>}/>
             <Route path="/manager" element={<ManagerPage {...states}/>}/>
             <Route path="/create-manager" element={<CreateManagerPage {...states}/>}/>

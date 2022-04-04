@@ -21,34 +21,73 @@ for (let i = 0; i < total; i++) {
 
 
 export default (props) => {
+    useEffect(() => {
+        fetch(`http://localhost:8080/categories`)
+            .then(data => data.json())
+            .then(
+                (data) => {
+                    if (data.statusCode === 200) {
+                        return data.data
+                    } else {
+                        MessagePlugin.error(data.error.description);
+                    }
+                }
+            )
+            .then(setData)
+            //.then(() => setLoading(false))
+            .catch(error => {
+                setError(error)
+                console.log("error" + error)
+            });
+    }, []);
     const moveUp = (id) => {
         setIsLoading(true)
-        setTimeout(() => {
-            MessagePlugin.success(translate('Moved!'));
-            fetchData();
-        }, 1000);
+        const requestOptions = {
+            crossDomain: true,
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+        };
+        fetch(`http://localhost:8080/category/move-up/` + id, requestOptions)
+            .then(data => data.json())
+            .then(
+                (data) => {
+                    if (data.statusCode === 200) {
+                        MessagePlugin.success(translate('Moved Successfully'));
+                        fetchData();
+                    } else {
+                        MessagePlugin.error(data.error.description);
+                    }
+                }
+            )
+            .catch(error => {
+                console.log("error" + error)
+            });
     }
 
     const moveDown = (id) => {
         setIsLoading(true)
-        setTimeout(() => {
-            MessagePlugin.success(translate('Moved!'));
-            fetchData();
-        }, 1000);
+        const requestOptions = {
+            crossDomain: true,
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+        };
+        fetch(`http://localhost:8080/category/move-down/` + id, requestOptions)
+            .then(data => data.json())
+            .then(
+                (data) => {
+                    if (data.statusCode === 200) {
+                        MessagePlugin.success(translate('Moved Successfully'));
+                        fetchData();
+                    } else {
+                        MessagePlugin.error(data.error.description);
+                    }
+                }
+            )
+            .catch(error => {
+                console.log("error" + error)
+            });
     }
     const translate = translateWithLanguage(props.language);
-    dataSource[0].code = 'about-us'
-    dataSource[0].title = translate('About Us')
-    dataSource[1].code = 'introduce'
-    dataSource[1].title = translate('Introduce')
-    dataSource[1].parent = translate('About Us')
-    dataSource[2].code = 'news'
-    dataSource[2].title = translate('News')
-    dataSource[2].parent = translate('About Us')
-    dataSource[3].code = 'business'
-    dataSource[3].title = translate('Business')
-    dataSource[3].code = 'member-zone'
-    dataSource[3].title = translate('Member zone')
     const columns = [
         {align: 'center', width: 100, minWidth: 100, ellipsis: true, colKey: 'code', title: translate('Category Code'),},
         {align: 'left', width: 100, minWidth: 100, ellipsis: true, colKey: 'title', title: translate('Category Title'),},
@@ -83,7 +122,7 @@ export default (props) => {
                         <PopConfirm
                             visible={visible[record.index]}
                             content={translate('Are you sure want to delete it?')}
-                            confirmBtn={<Button theme="danger" size={'small'} onClick={() => deleteClickHandler(record.row.index)}>{translate('Delete')}</Button>}
+                            confirmBtn={<Button theme="danger" size={'small'} onClick={() => deleteClickHandler(record.row.id)}>{translate('Delete')}</Button>}
                             cancelBtn={<Button size={'small'} variant="outline">{translate('Cancel')}</Button>}
                             onCancel={() => {
                                 setVisible([]);
@@ -106,24 +145,52 @@ export default (props) => {
     const [data, setData] = useState([]);
     const [visible, setVisible] = useState([]);
 
-    const deleteClickHandler = (index) => {
+    const deleteClickHandler = (id) => {
         setIsLoading(true)
         setVisible([]);
-        setTimeout(() => {
-            MessagePlugin.success(translate('Deleted!'));
-            fetchData();
-        }, 1000);
+        const requestOptions = {
+            crossDomain: true,
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'},
+        };
+        fetch(`http://localhost:8080/category/` + id, requestOptions)
+            .then(data => data.json())
+            .then(
+                (data) => {
+                    if (data.statusCode === 200) {
+                        MessagePlugin.success(translate('Moved Successfully'));
+                        fetchData();
+                    } else {
+                        MessagePlugin.error(data.error.description);
+                    }
+                }
+            )
+            .catch(error => {
+                console.log("error" + error)
+            });
     };
 
 
-    // 模拟远程请求
     async function fetchData() {
         setIsLoading(true);
         try {
-            setTimeout(() => {
-                setData(dataSource);
-                setIsLoading(false);
-            }, 500);
+            fetch(`http://localhost:8080/categories`)
+                .then(data => data.json())
+                .then(
+                    (data) => {
+                        if (data.statusCode === 200) {
+                            return data.data
+                        } else {
+                            MessagePlugin.error(data.error.description);
+                        }
+                    }
+                )
+                .then(setData)
+                .then(() => setIsLoading(false))
+                .catch(error => {
+                    setError(error)
+                    console.log("error" + error)
+                });
         } catch (err) {
             setData([]);
         }

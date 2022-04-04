@@ -9,6 +9,7 @@ import Admin from './admin'
 import Config from './config'
 import Category from './category'
 import EditCategory from './editCategory'
+import CreateCategory from './createCategory'
 import Manager from './manager'
 import EditManager from "./editManager";
 import ChangePassword from "./changePassword";
@@ -52,6 +53,10 @@ export function CategoryPage(props) {
 
 export function EditCategoryPage(props) {
     return <EditCategory {...props} />
+}
+
+export function CreateCategoryPage(props) {
+    return <CreateCategory {...props} />
 }
 
 export function ManagerPage(props) {

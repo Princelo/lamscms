@@ -8,8 +8,21 @@ use App\Actions\Article\PublishArticleAction;
 use App\Actions\Article\PublishArticlesAction;
 use App\Actions\Article\UpdateArticleAction;
 use App\Actions\Article\ViewArticleAction;
+use App\Actions\Category\CreateCategoryAction;
+use App\Actions\Category\DeleteCategoryAction;
+use App\Actions\Category\ListCategoryAction;
+use App\Actions\Category\ListParentCandidatesOfCategoryAction;
+use App\Actions\Category\MoveCategoryDownAction;
+use App\Actions\Category\MoveCategoryUpAction;
+use App\Actions\Category\UpdateCategoryAction;
+use App\Actions\Category\ViewCategoryAction;
 use App\Actions\Settings\UpdateSettingsAction;
 use App\Actions\Settings\ViewSettingsAction;
+use App\Actions\Template\CreateTemplateAction;
+use App\Actions\Template\DeleteTemplateAction;
+use App\Actions\Template\ListTemplateAction;
+use App\Actions\Template\UpdateTemplateAction;
+use App\Actions\Template\ViewTemplateAction;
 use App\Actions\User\ChangePasswordAction;
 use App\Actions\User\CreateUserAction;
 use App\Actions\User\DeleteUserAction;
@@ -40,4 +53,20 @@ return function (App $app) {
 
     $app->patch('/settings', UpdateSettingsAction::class);
     $app->get('/settings', ViewSettingsAction::class);
+
+    $app->get('/categories', ListCategoryAction::class);
+    $app->get('/category/parentCandidates', ListParentCandidatesOfCategoryAction::class);
+    $app->get('/category/parentCandidates/{id}', ListParentCandidatesOfCategoryAction::class);
+    $app->get('/category/{id}', ViewCategoryAction::class);
+    $app->post('/category', CreateCategoryAction::class);
+    $app->delete('/category/{id}', DeleteCategoryAction::class);
+    $app->post('/category/move-up/{id}', MoveCategoryUpAction::class);
+    $app->post('/category/move-down/{id}', MoveCategoryDownAction::class);
+    $app->put('/category/{id}', UpdateCategoryAction::class);
+
+    $app->get('/templates', ListTemplateAction::class);
+    $app->get('/template/{id}', ViewTemplateAction::class);
+    $app->post('/template', CreateTemplateAction::class);
+    $app->delete('/template/{id}', DeleteTemplateAction::class);
+    $app->put('/template/{id}', UpdateTemplateAction::class);
 };

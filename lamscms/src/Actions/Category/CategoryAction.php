@@ -1,6 +1,7 @@
 <?php
-namespace App\Actions;
+namespace App\Actions\Category;
 
+use App\Actions\Action;
 use App\Repository\CategoryRepository;
 use Psr\Log\LoggerInterface;
 

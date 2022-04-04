@@ -28,7 +28,6 @@ export default (props) => {
     const [parentCategories, setParentCategories] = useState([]);
     const [containsContent, setContainsContent] = useState(false);
     const [hidden, setHidden] = useState(false);
-    const [category, setCategory] = useState([]);
 
     const onSubmit = (e) => {
         if (e.validateResult === true) {
@@ -38,16 +37,16 @@ export default (props) => {
             if (e.validateResult === true) {
                 const requestOptions = {
                     crossDomain: true,
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(form)
                 };
-                fetch(`http://localhost:8080/category/${params.id}`, requestOptions)
+                fetch(`http://localhost:8080/category`, requestOptions)
                     .then(data => data.json())
                     .then(
                         (data) => {
                             if (data.statusCode === 200) {
-                                MessagePlugin.success(translate('Updated Successfully'));
+                                MessagePlugin.success(translate('Saved Successfully'));
                             } else {
                                 MessagePlugin.error(data.error.description);
                             }
@@ -62,32 +61,12 @@ export default (props) => {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:8080/category/${params.id}`)
+        fetch(`http://localhost:8080/category/parentCandidates`)
             .then(data => data.json())
             .then(
                 (data) => {
                     if (data.statusCode === 200) {
                         return data.data
-                    } else {
-                        MessagePlugin.error(data.error.description);
-                    }
-                }
-            )
-            .then((category) => {
-                    setCategory(category)
-                formRef.current.setFieldsValue(category)
-            }
-            )
-            .catch(error => {
-                setError(error)
-                console.log("error" + error)
-            });
-        fetch(`http://localhost:8080/category/parentCandidates/${params.id}`)
-            .then(data => data.json())
-            .then(
-                (data) => {
-                    if (data.statusCode === 200) {
-                        return data.data.filter(e => e.id !== parseInt(params.id))
                     } else {
                         MessagePlugin.error(data.error.description);
                     }
@@ -164,7 +143,7 @@ export default (props) => {
         return new Promise((resolve) => {
             fetch(`http://localhost:8080/categories`)
                 .then(data => data.json())
-                .then((data) => data.data.filter(e => e.id !== parseInt(params.id)).map(d => d.code))
+                .then((data) => data.data.map(d => d.code))
                 .then((codes) => resolve(!codes.includes(code)))
                 .catch(error => {
                     console.log("error" + error)
@@ -210,15 +189,15 @@ export default (props) => {
             <Layout {...props}>
                 <div className="kof-form-block">
                     <Form ref={formRef} statusIcon={true} onSubmit={onSubmit} colon labelWidth={180} rules={rules}>
-                        <h1 style={{marginBottom: 48}}>{translate('Edit Category')}</h1>
+                        <h1 style={{marginBottom: 48}}>{translate('Create Category')}</h1>
                         <FormItem label={translate('Category Title')} name="title">
-                            <Input maxLength={20} onChange={setPopulated} value={category.title} defaultValue={category.title}/>
+                            <Input maxLength={20} onChange={setPopulated}/>
                         </FormItem>
                         <FormItem label={translate('Category Code')} name="code">
                             <Input maxLength={20} onChange={setPopulated}/>
                         </FormItem>
                         <FormItem label={translate('Parent Category')} name="parentID">
-                            <Select value={category.parentCategory} onChange={onChange} style={{width: '40%'}}
+                            <Select value={value} onChange={onChange} style={{width: '40%'}}
                                     placeholder={translate('- Select an option -')} clearable>
                                 {
                                     parentCategories.map((c, i) => (
@@ -252,16 +231,18 @@ export default (props) => {
                                         setContainsContent(value);
                                         setPopulated();
                                     }
-                                } value={category.containsContent}/>
+                                }/>
                             </Tooltip>
-                            <Tooltip
-                                content={translate('While this setting turns on, articles, images or other info would be added to this category. And this setting of the category can’t be changed in future.')}
-                                placement="bottom-left" showArrow destroyOnClose>
-                                <HelpCircleIcon style={{marginLeft: 12, color: "#777"}}/>
-                            </Tooltip>
+                            {params.id != null ?
+                                <Tooltip
+                                    content={translate('While this setting turns on, articles, images or other info would be added to this category. And this setting of the category can’t be changed in future.')}
+                                    placement="bottom-left" showArrow destroyOnClose>
+                                    <HelpCircleIcon style={{marginLeft: 12, color: "#777"}}/>
+                                </Tooltip>
+                                : null}
                         </FormItem>
                         <FormItem label={translate('List Page Template')} name="listPageTemplate">
-                            <Select onChange={onChange} style={{width: '40%'}}
+                            <Select value={value} onChange={onChange} style={{width: '40%'}}
                                     placeholder={translate('- Select an option -')}>
                                 {
                                     listPageTemplates.map((t, i) => (
@@ -272,7 +253,7 @@ export default (props) => {
                             </Select>
                         </FormItem>
                         <FormItem label={translate('Detail Page Template')} name="detailPageTemplate">
-                            <Select onChange={onChange} style={{width: '40%'}}
+                            <Select value={value} onChange={onChange} style={{width: '40%'}}
                                     placeholder={translate('- Select an option -')}>
                                 {
                                     detailPageTemplates.map((t, i) => (
@@ -283,7 +264,7 @@ export default (props) => {
                             </Select>
                         </FormItem>
                         <FormItem label={translate('Hidden')} name="hidden">
-                            <Switch value={category.hidden} onChange={
+                            <Switch onChange={
                                 (value) => {
                                     setHidden(value)
                                     setPopulated()

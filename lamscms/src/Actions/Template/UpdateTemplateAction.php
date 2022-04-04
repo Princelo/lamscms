@@ -1,14 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Actions\Article;
+namespace App\Actions\Template;
 
-use App\Domain\Article;
-use App\Domain\User;
+use App\Domain\Template;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Exception\HttpBadRequestException;
 
-class UpdateArticleAction extends ArticleAction
+class UpdateTemplateAction extends TemplateAction
 {
     /**
      * {@inheritdoc}
@@ -16,17 +15,15 @@ class UpdateArticleAction extends ArticleAction
     protected function action(): Response
     {
         $formData = $this->getFormDataAsArray();
-        $mustContains = ["title", "category", "body", "mobileBody", "published", "isHeadline", "priority",
-            "preview", "avatarURL", "tags"];
+        $mustContains = ["id", "title", "type", "body"];
         $missingFields = validate_form($formData, $mustContains);
         if (!empty($missingFields)) {
             $this->logger->error("bad request. the request should contain fields:",
                 [$mustContains, request_body()]);
             throw new HttpBadRequestException($this->request, "the request body you sent is invalid");
         }
-        $formData['id'] = intval($this->args['id']);
-        $article = new Article(...$formData);
-        $updated = $this->articleRepository->update($article);
+        $template = new Template(...$formData);
+        $updated = $this->templateRepository->update($template);
         return $this->respondWithData($updated);
     }
 }

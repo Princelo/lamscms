@@ -1,32 +1,27 @@
 <?php
-declare(strict_types=1);
+namespace App\Actions\Category;
 
-namespace App\Actions\Article;
-
-use App\Domain\Article;
-use App\Domain\User;
+use App\Domain\Category;
+use App\Domain\DomainException\DomainRecordNotFoundException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Exception\HttpBadRequestException;
 
-class UpdateArticleAction extends ArticleAction
+class CreateCategoryAction extends CategoryAction
 {
-    /**
-     * {@inheritdoc}
-     */
+
     protected function action(): Response
     {
         $formData = $this->getFormDataAsArray();
-        $mustContains = ["title", "category", "body", "mobileBody", "published", "isHeadline", "priority",
-            "preview", "avatarURL", "tags"];
+        $mustContains = ["title", "code"];
         $missingFields = validate_form($formData, $mustContains);
         if (!empty($missingFields)) {
             $this->logger->error("bad request. the request should contain fields:",
                 [$mustContains, request_body()]);
             throw new HttpBadRequestException($this->request, "the request body you sent is invalid");
         }
-        $formData['id'] = intval($this->args['id']);
-        $article = new Article(...$formData);
-        $updated = $this->articleRepository->update($article);
-        return $this->respondWithData($updated);
+        $category = new Category(...$formData);
+        $id = $this->categoryRepository->create($category);
+        $category->setID($id);
+        return $this->respondWithData($category);
     }
 }
