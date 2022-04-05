@@ -22,12 +22,18 @@ class ListArticleAction extends ArticleAction
      */
     protected function action(): Response
     {
-        $formArray = (array) $this->getFormData();
-        $request = new ListArticleRequest(...$formArray);
+        $hasBody = file_get_contents('php://input') != null;
+        if ($hasBody) {
+            $formArray = (array) $this->getFormData();
+            $request = new ListArticleRequest(...$formArray);
+        } else {
+            $request = new ListArticleRequest();
+        }
         $pagination = new Pagination($request->getPage(), $request->getSize());
         if ($request->getKeyword() != null && !empty($request->getKeyword())) {
-            $pagination->like("title", $request->getKeyword());
-            $pagination->like("preview", $request->getKeyword());
+            $grouped = $pagination->group();
+            $grouped->like("title", $request->getKeyword());
+            $grouped->like("preview", $request->getKeyword());
             $articleIDs = $this->tagRepository->findArticleIDs($request->getKeyword());
             if (!empty($articleIDs)) {
                 $pagination->in("id", $articleIDs);
@@ -42,6 +48,7 @@ class ListArticleAction extends ArticleAction
         if ($request->getPublishedUntil()) {
             $pagination->lessOrEqual("published_at", $request->getPublishedUntil());
         }
+        $this->logger->error($pagination->getFilters());
         $paginated = $this->articleRepository->paginated($pagination);
 
         return $this->respondWithData($paginated);

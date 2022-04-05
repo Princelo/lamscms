@@ -1,7 +1,6 @@
 <?php
 namespace App\Pagination;
 
-use PDO;
 use PDOStatement;
 
 class Pagination
@@ -11,12 +10,20 @@ class Pagination
     private array $endsWith = [];
     private array $compares = [];
     private array $includes = [];
+    private array $group = [];
 
     public function __construct(
-        private int $page,
-        private int $size
+        private int $page = 1,
+        private int $size = 5
     )
     {
+    }
+
+    public function group(): Pagination
+    {
+        $grouped = new Pagination();
+        array_push($this->group, $grouped);
+        return $grouped;
     }
 
     public function equal(string $column, $value)
@@ -79,47 +86,52 @@ class Pagination
         return ($this->page-1) * $this->size;
     }
 
-    public function getFilters(): string|false
+    public function getFilters($defaultOperator = " and "): string|false
     {
         if (empty($this->equals) && empty($this->compares) && empty($this->likes) && empty($this->endsWith)
-            && empty($this->includes)) {
+            && empty($this->includes) && empty($this->group)) {
             return false;
         }
-        $filters = "where ";
-        $and = " ";
+        $filters = " ( ";
+        $operator = " ";
         foreach ($this->equals as $equal)
         {
             [$column] = $equal;
-            $filters .= $and;
+            $filters .= $operator;
             $filters .= $column." = :".$column;
-            $and = " and ";
+            $operator = $defaultOperator;
         }
         foreach ($this->likes as $like) {
             [$column] = $like;
-            $filters .= $and;
+            $filters .= $operator;
             $filters .= $column." like :_like_".$column;
-            $and = " and ";
+            $operator = $defaultOperator;
         }
         foreach ($this->endsWith as $endsWith) {
             [$column] = $endsWith;
-            $filters .= $and;
+            $filters .= $operator;
             $filters .= $column." like :_ends_with_".$column;
-            $and = " and ";
+            $operator = $defaultOperator;
         }
         foreach ($this->compares as $compare) {
             [$column, , $operation] = $compare;
-            $filters .= $and;
-            $filters .= $column." ".$operation." :".$column;
-            $and = " and ";
+            $filters .= $operator;
+            $filters .= $column." ".$operation." :".$this->operationAsString($operation).$column;
+            $operator = $defaultOperator;
         }
         foreach ($this->includes as $include) {
             [$column, $values] = $include;
-            $filters .= $and;
+            $filters .= $operator;
             $filters .= $column." in ";
             $filters .= sql_in($values, fn ($v) => quote($v));
-            $and = " and ";
+            $operator = $defaultOperator;
         }
-        return $filters;
+        foreach ($this->group as $grouped) {
+            $filters .= $operator;
+            $filters .= $grouped->getFilters(" or ");
+            $operator = $defaultOperator;
+        }
+        return $filters." ) ";
     }
 
     public function bindValues(PDOStatement $statement)
@@ -138,8 +150,33 @@ class Pagination
             $statement->bindValue(":_ends_with_".$column, $value."%");
         }
         foreach ($this->compares as $compare) {
-            [$column, $value] = $compare;
-            $statement->bindValue(":".$column, $value);
+            [$column, $value, $operation] = $compare;
+            if ($value instanceof \DateTime) {
+                $statement->bindValue(":".$this->operationAsString($operation).$column, $value->format('Y-m-d H:i:s'));
+            } else {
+                $statement->bindValue(":".$this->operationAsString($operation).$column, $value);
+            }
         }
+        foreach ($this->group as $grouped) {
+            $grouped->bindValues($statement);
+        }
+    }
+
+    private function operationAsString(string $operation): string
+    {
+        switch ($operation)
+        {
+            case ">":
+                return "_gt_";
+            case "<":
+                return "_lt_";
+            case ">=":
+                return "_ge_";
+            case "<=":
+                return "_le_";
+            case "<>":
+                return "_neq_";
+        }
+        return "";
     }
 }

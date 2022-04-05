@@ -43,7 +43,7 @@ return function (App $app) {
     $app->post('/user/change-password', ChangePasswordAction::class);
 
     $app->get('/article/{id}', ViewArticleAction::class);
-    $app->get('/articles', ListArticleAction::class);
+    $app->post('/articles', ListArticleAction::class);
     $app->post('/article', CreateArticleAction::class);
     $app->put('/article', UpdateArticleAction::class);
     $app->delete('/article/{id}', DeleteArticleAction::class);

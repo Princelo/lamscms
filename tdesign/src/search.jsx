@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Form, Input, Button, Select, DatePicker} from 'tdesign-react';
+import React, {useRef, useState} from 'react';
+import {Form, Input, Button, Select, DatePicker, MessagePlugin} from 'tdesign-react';
 import {translateWithLanguage} from "./i18n";
 import {ChevronDownIcon, ChevronUpIcon} from "tdesign-icons-react";
 
@@ -8,15 +8,55 @@ const {FormItem} = Form;
 const {Option} = Select;
 
 
+
 export default (props) => {
+    const formRef = useRef();
     const translate = translateWithLanguage(props.language);
     const [expands, setExpands] = useState(false)
+    const [publishedDate, setPublishedDate] = useState()
     const toggleExpand = () => {
         setExpands(!expands)
     }
+    const {setIsLoading, setTotal, setData} = props
+    const onSubmit = (e) => {
+        if (e.validateResult === true) {
+            setIsLoading(true);
+            let form = formRef.current.getAllFieldsValue()
+            form.published = form.published == 'n' ? false : form.published
+            form.published = form.published == 'y' ? true : form.published
+            form.published = form.published == '' ? null : form.published
+            if (publishedDate != null) {
+                form.publishedSince = publishedDate[0]
+                form.publishedUntil = publishedDate[1]
+            }
+            const requestOptions = {
+                crossDomain: true,
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(form)
+            };
+            fetch(`http://localhost:8080/articles`, requestOptions)
+                .then(data => data.json())
+                .then(
+                    (data) => {
+                        if (data.statusCode === 200) {
+                            setTotal(data.data.total);
+                            return data.data.data;
+                        } else {
+                            MessagePlugin.error(data.error.description);
+                        }
+                    }
+                )
+                .then(setData)
+                .then(() => setIsLoading(false))
+                .catch(error => {
+                    console.log("error" + error)
+                });
+        }
+    };
     return (
         <div className={"kof-search-box"}>
-            <Form layout={"inline"} labelAlign={"left"}>
+            <Form ref={formRef} layout={"inline"} labelAlign={"left"} onSubmit={onSubmit} >
                 <FormItem label={translate('Search')} name="keyword">
                     <Input/>
                 </FormItem>
@@ -44,7 +84,7 @@ export default (props) => {
             {expands ?
                 <Form style={{marginTop: 18}} labelAlign={"left"}>
                     <FormItem label={translate('Published Date')} name={"published-between"}>
-                        <DatePicker mode="date" range onChange={(value => console.log(value))}/>
+                        <DatePicker mode="date" range clearable={true} onChange={setPublishedDate}/>
                     </FormItem>
                 </Form>
                 : <></>

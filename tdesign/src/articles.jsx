@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import DefaultLayout from './layout';
 
-import {Table, Layout, Button, PopConfirm} from 'tdesign-react';
+import {Table, Layout, Button, PopConfirm, MessagePlugin} from 'tdesign-react';
 import Category from "./categoryTree";
 import Search from "./search";
 import {CheckIcon, CloseIcon, DeleteIcon, EditIcon} from "tdesign-icons-react";
@@ -18,7 +18,7 @@ const getCheck = () => {
 export default (props) => {
     const translate = translateWithLanguage(props.language)
     const dataSource = [];
-    const total = 60;
+    const [total, setTotal] = useState(0);
     for (let i = 0; i < total; i++) {
         dataSource.push({
             index: i, id: i, title: '2021年海珠区官洲街红十字初级卫生救护培训班', published: true, headline: true, createdBy: 'admin', modifiedBy: 'admin', createdAt: '2022-01-01 00:00:00', modifiedAt: '2022-01-01 00:00:00', publishedAt: '2022-02-02 00:00:00'
@@ -92,12 +92,36 @@ export default (props) => {
     async function fetchData(pageInfo) {
         setIsLoading(true);
         try {
-            setTimeout(() => {
-                const {current, pageSize} = pageInfo;
-                const newDataSource = dataSource.slice((current - 1) * pageSize, current * pageSize);
-                setData(newDataSource);
-                setIsLoading(false);
-            }, 3000);
+            // setTimeout(() => {
+            //     const {current, pageSize} = pageInfo;
+            //     const newDataSource = dataSource.slice((current - 1) * pageSize, current * pageSize);
+            //     setData(newDataSource);
+            //     setIsLoading(false);
+            // }, 3000);
+            const requestOptions = {
+                crossDomain: true,
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: `{"page": ${pageInfo.current}, "size": ${pageInfo.pageSize}}`
+            };
+            fetch(`http://localhost:8080/articles`, requestOptions)
+                .then(data => data.json())
+                .then(
+                    (data) => {
+                        if (data.statusCode === 200) {
+                            setTotal(data.data.total)
+                            return data.data.data
+                        } else {
+                            MessagePlugin.error(data.error.description);
+                        }
+                    }
+                )
+                .then(setData)
+                .then(() => setIsLoading(false))
+                .catch(error => {
+                    setError(error)
+                    console.log("error" + error)
+                });
         } catch (err) {
             setData([]);
         }
@@ -123,7 +147,7 @@ export default (props) => {
                 <Category language={props.language}/>
             </Aside>
             <Content>
-                <Search language={props.language}/>
+                <Search language={props.language} setIsLoading={setIsLoading} setTotal={setTotal} setData={setData}/>
                 <div style={{paddingRight: 50}}>
                     <div>
                         <Button variant={"outline"} style={{marginRight: 12}}>{translate('Create')}</Button>

@@ -56,6 +56,8 @@ class ArticleRepository
         $limit = $pagination->getLimit();
         $size = $pagination->getSize();
         $filters = $pagination->getFilters();
+        $where = "";
+        if ($filters) $where = " where ".$filters;
         $sql = <<<SQL
             select
                 id,
@@ -75,7 +77,7 @@ class ArticleRepository
                 published_at publishedAt,
                 published_by publishedBy
             from article
-                ${filters}
+                $where
             limit ${limit}, ${size}
         SQL;
 
@@ -89,7 +91,7 @@ class ArticleRepository
         );
         $sql = <<<SQL
             select count(*) as count from article
-                ${filters}
+                $where
         SQL;
         $statement = $this->pdo->prepare($sql);
         $pagination->bindValues($statement);
