@@ -142,6 +142,12 @@ export function getLanguageName(language) {
     }
 }
 
+export function getLanguageCode(code) {
+    if ('cn' === code) return 'zh-tw';
+    if ('cn_simp' === code) return 'zh-cn';
+    return 'en';
+}
+
 export function translateWithLanguage(language) {
     return key => {
         return i18n(key, language)

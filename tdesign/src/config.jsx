@@ -5,11 +5,12 @@ import {
     Form,
     Input,
     MessagePlugin,
-    Addon, Loading
+    InputAdornment, Loading
 } from "tdesign-react";
 import Layout from "./layout";
 import {translateWithLanguage} from "./i18n";
 import Textarea from "tdesign-react/es/textarea/Textarea";
+import meta from "./meta";
 
 const {FormItem} = Form;
 export default (props) => {
@@ -43,14 +44,14 @@ export default (props) => {
     const formRef = useRef();
 
     const onSubmit = (e) => {
-        let form = formRef.current.getAllFieldsValue()
-        form.address = address
+        let form = formRef.current
+        form.setFieldsValue({"address": address})
         if (e.validateResult === true) {
             const requestOptions = {
                 crossDomain: true,
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(form)
+                body: JSON.stringify(form.getFieldsValue(meta.settings))
             };
             fetch(`http://localhost:8080/settings`, requestOptions)
                 .then(data => data.json())
@@ -79,10 +80,10 @@ export default (props) => {
                         <Form ref={formRef} onSubmit={onSubmit} colon labelWidth={150}>
                             <div className="kof-form-block">
                                 <h1 style={{marginBottom: 48}}>{translate('Website Settings')}</h1>
-                                <FormItem label={translate('Website Address')} name="address">
-                                    <Addon prepend="http(s)://">
-                                        <Input defaultValue={data?.address} onChange={setAddress}/>
-                                    </Addon>
+                                <FormItem label={translate('Website Address')} name="address" initialData={data?.address}>
+                                    <InputAdornment prepend="http(s)://">
+                                        <Input onChange={setAddress}/>
+                                    </InputAdornment>
                                 </FormItem>
                                 <FormItem label={translate('Website Title')} name="title"
                                           initialData={data?.title ? data.title : ""}>

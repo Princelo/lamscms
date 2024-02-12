@@ -20,11 +20,11 @@ export default (props) => {
 
     const onSubmit = (e) => {
         if (e.validateResult === true) {
-            let username = formRef.current.getAllFieldsValue()['login-name'];
-            let password = formRef.current.getAllFieldsValue()['password'];
-            let enabled = formRef.current.getAllFieldsValue()['enabled']??false;
-            let role = formRef.current.getAllFieldsValue()['role']??'admin';
-            console.log(formRef.current.getAllFieldsValue());
+            debugger
+            let username = formRef.current.getFieldValue(["login-name"])
+            let password = formRef.current.getFieldValue(["password"])
+            let enabled = formRef.current.getFieldValue(["enabled"])??false
+            let role = formRef.current.getFieldValue(["role"])??'admin'
             const requestOptions = {
                 crossDomain:true,
                 method: 'POST',
@@ -134,9 +134,9 @@ export default (props) => {
                         <FormItem label={translate('Enabled')} name="enabled">
                             <Switch />
                         </FormItem>
-                        <FormItem label={translate('Role')} name="role">
+                        <FormItem label={translate('Role')} name="role" initialData={'admin'}>
                             <Select style={{width: '40%'}}
-                                    placeholder={translate('- Select an option -')} defaultValue={'admin'}
+                                    placeholder={translate('- Select an option -')}
                                     disabled={isSuperAdmin}>
                                 {isSuperAdmin ?
                                     <Option key="root" label={translate('Super Admin')} value="root"/>

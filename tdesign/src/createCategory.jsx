@@ -61,7 +61,7 @@ export default (props) => {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:8080/category/parentCandidates`)
+        fetch(`http://localhost:8080/category/parent-candidates`)
             .then(data => data.json())
             .then(
                 (data) => {
@@ -200,7 +200,8 @@ export default (props) => {
                             <Select value={value} onChange={onChange} style={{width: '40%'}}
                                     placeholder={translate('- Select an option -')} clearable>
                                 {
-                                    parentCategories.map((c, i) => (
+                                    parent
+                                    .map((c, i) => (
                                             <Option key={c.code} label={c.title} value={c.id}/>
                                         )
                                     )

@@ -81,7 +81,7 @@ class Pagination
         return $this->size;
     }
 
-    public function getLimit(): int
+    public function getOffset(): int
     {
         return ($this->page-1) * $this->size;
     }

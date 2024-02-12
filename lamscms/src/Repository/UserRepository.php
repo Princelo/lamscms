@@ -14,7 +14,7 @@ class UserRepository
 
     public function one(int $id): ?User
     {
-        $statement = $this->pdo->prepare("select * from user where id = :id");
+        $statement = $this->pdo->prepare("select * from users where id = :id");
         $statement->bindParam(":id", $id);
         $statement->execute();
         $user = $statement->fetch();
@@ -26,7 +26,7 @@ class UserRepository
 
     public function findUserOfRole(string $role): array
     {
-        $statement = $this->pdo->prepare("select * from user where role = :role");
+        $statement = $this->pdo->prepare("select * from users where role = :role");
         $statement->bindParam(":role", $role);
         $statement->execute();
         $users = $statement->fetchAll();
@@ -38,7 +38,7 @@ class UserRepository
 
     public function all(): array
     {
-        $statement = $this->pdo->prepare("select * from user");
+        $statement = $this->pdo->prepare("select * from users");
         $statement->execute();
         $users = $statement->fetchAll();
         return array_map(
@@ -50,7 +50,7 @@ class UserRepository
     public function create(User $user): int
     {
         $sql = <<<SQL
-            insert into user(username, password, role, enabled)
+            insert into users(username, password, role, enabled)
             values (:username, :password, :role, :enabled)
         SQL;
 
@@ -65,7 +65,7 @@ class UserRepository
 
     public function validatePassword(string $username, string $password): bool
     {
-        $sql = "select password from user where username = :username";
+        $sql = "select password from users where username = :username";
         $statement = $this->pdo->prepare($sql);
         $statement->bindValue(":username", $username);
         $statement->execute();
@@ -78,7 +78,7 @@ class UserRepository
 
     public function changePassword(string $username, string $password)
     {
-        $sql = "update user set password = :password where username = :username";
+        $sql = "update users set password = :password where username = :username";
         $statement = $this->pdo->prepare($sql);
         $statement->bindValue(":password", password_hash($password, PASSWORD_DEFAULT));
         $statement->bindValue(":username", $username);
@@ -87,9 +87,9 @@ class UserRepository
 
     public function resetPassword(int $id): string
     {
-        $newPassword = randomPassword();
+        $newPassword = random_password();
         $newPasswordHash = password_hash($newPassword, PASSWORD_DEFAULT);
-        $sql = "update user set password = :password where id = :id";
+        $sql = "update users set password = :password where id = :id";
         $statement = $this->pdo->prepare($sql);
         $statement->bindValue(":password", $newPasswordHash);
         $statement->bindValue(":id", $id);
@@ -99,7 +99,7 @@ class UserRepository
 
     public function delete(string $username)
     {
-        $sql = "delete from user where username = :username";
+        $sql = "delete from users where username = :username";
         $statement = $this->pdo->prepare($sql);
         $statement->bindValue(":username", $username);
         $statement->execute();
@@ -107,7 +107,7 @@ class UserRepository
 
     public function update(User $user): ?User
     {
-        $sql = "update user set enabled = :enabled, role = :role where id = :id";
+        $sql = "update users set enabled = :enabled, role = :role where id = :id";
         $statement = $this->pdo->prepare($sql);
         $statement->bindValue(":enabled", intval($user->isEnabled()));
         $statement->bindValue(":role", $user->getRole());

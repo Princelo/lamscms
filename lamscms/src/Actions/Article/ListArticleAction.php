@@ -39,7 +39,7 @@ class ListArticleAction extends ArticleAction
                 $pagination->in("id", $articleIDs);
             }
         }
-        if ($request->getPublished() != null) {
+        if ($request->getPublished() == '0' || $request->getPublished() == '1') {
             $pagination->equal("published", $request->getPublished());
         }
         if ($request->getPublishedSince()) {
@@ -47,6 +47,9 @@ class ListArticleAction extends ArticleAction
         }
         if ($request->getPublishedUntil()) {
             $pagination->lessOrEqual("published_at", $request->getPublishedUntil());
+        }
+        if ($request->getCategory() != '') {
+            $pagination->equal("category", $request->getCategory());
         }
         $this->logger->error($pagination->getFilters());
         $paginated = $this->articleRepository->paginated($pagination);

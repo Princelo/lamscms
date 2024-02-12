@@ -1,10 +1,10 @@
 // @ts-nocheck
 import React, {useState} from 'react';
-import {Layout, Dropdown, Button, Message, MessagePlugin} from 'tdesign-react';
+import {Layout, Dropdown, Button, MessagePlugin} from 'tdesign-react';
 import {Icon, LogoutIcon, UserIcon} from "tdesign-icons-react";
 import Menu from './menu';
 import Logo from './logo';
-import {getLanguageName, getLanguages, translateWithLanguage} from "./i18n";
+import {getLanguageCode, getLanguageName, getLanguages, translateWithLanguage} from "./i18n";
 
 export default (props) => {
     const translate = translateWithLanguage(props.language)
@@ -28,10 +28,12 @@ export default (props) => {
     };
     const switchLanguage = (selected) => {
         setLanguage(selected.value);
+        document.documentElement.lang = getLanguageCode(selected.value);
+        document.body.lang = getLanguageCode(selected.value);
     }
-    const [width, setWidth] = useState(232);
+    const [width, setWidth] = useState("232");
     const toggleCollapseLayout = () => {
-      setWidth(width == 64 ? 232 : 64)
+      setWidth(width === "64" ? "232" : "64")
     }
 
     return (<>

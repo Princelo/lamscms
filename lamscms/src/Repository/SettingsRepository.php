@@ -47,11 +47,11 @@ class SettingsRepository
             select
                 title,
                 address,
-                sub_title subTitle,
+                sub_title "subTitle",
                 keywords,
                 description,
-                modified_at modifiedAt,
-                modified_by modifiedBy
+                modified_at "modifiedAt",
+                modified_by "modifiedBy"
             from settings where id = :id
         SQL;
 

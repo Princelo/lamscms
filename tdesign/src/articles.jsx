@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import DefaultLayout from './layout';
 
-import {Table, Layout, Button, PopConfirm, MessagePlugin} from 'tdesign-react';
+import {Table, Layout, Button, Popconfirm, MessagePlugin} from 'tdesign-react';
 import Category from "./categoryTree";
 import Search from "./search";
 import {CheckIcon, CloseIcon, DeleteIcon, EditIcon} from "tdesign-icons-react";
 import {translateWithLanguage} from "./i18n";
+import {useNavigate} from "react-router-dom";
 
 function rehandleClickOp(record) {
     console.log(record);
@@ -17,13 +18,8 @@ const getCheck = () => {
 
 export default (props) => {
     const translate = translateWithLanguage(props.language)
-    const dataSource = [];
-    const [total, setTotal] = useState(0);
-    for (let i = 0; i < total; i++) {
-        dataSource.push({
-            index: i, id: i, title: '2021年海珠区官洲街红十字初级卫生救护培训班', published: true, headline: true, createdBy: 'admin', modifiedBy: 'admin', createdAt: '2022-01-01 00:00:00', modifiedAt: '2022-01-01 00:00:00', publishedAt: '2022-02-02 00:00:00'
-        });
-    }
+    const [total, setTotal] = useState(0)
+    const [selectedCategory, setSelectedCategory] = useState()
     const columns = [
         {
             colKey: 'row-select',
@@ -50,9 +46,9 @@ export default (props) => {
                 return (
                     <>
                         <EditIcon className="kof-inline-icon-btn" style={{marginRight: 24}} onClick={() => {
-                            //editCategory(record.row.id)
+                            editArticle(record.row.id)
                         }}/>
-                        <PopConfirm
+                        <Popconfirm
                             content={translate('Are you sure want to delete it?')}
                             confirmBtn={<Button theme="danger" size={'small'} onClick={() => {
                                 //deleteClickHandler(record.row.index)
@@ -69,7 +65,7 @@ export default (props) => {
                                 }}
                             >
                             </DeleteIcon>
-                        </PopConfirm>
+                        </Popconfirm>
                     </>
                 )
             }
@@ -89,20 +85,21 @@ export default (props) => {
     }
 
     // 模拟远程请求
-    async function fetchData(pageInfo) {
+    async function fetchData(pageInfo, beingSelectedCategory) {
         setIsLoading(true);
         try {
-            // setTimeout(() => {
-            //     const {current, pageSize} = pageInfo;
-            //     const newDataSource = dataSource.slice((current - 1) * pageSize, current * pageSize);
-            //     setData(newDataSource);
-            //     setIsLoading(false);
-            // }, 3000);
+            let body = `{"page": ${pageInfo.current}, "size": ${pageInfo.pageSize}`;
+            if (beingSelectedCategory != null && beingSelectedCategory > 0) {
+                body += `,"category": "${beingSelectedCategory}"`
+            } else if (selectedCategory != null && selectedCategory > 0) {
+                body += `,"category": "${selectedCategory}"`
+            }
+            body += "}"
             const requestOptions = {
                 crossDomain: true,
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: `{"page": ${pageInfo.current}, "size": ${pageInfo.pageSize}}`
+                body: body
             };
             fetch(`http://localhost:8080/articles`, requestOptions)
                 .then(data => data.json())
@@ -135,22 +132,32 @@ export default (props) => {
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
+    const navigate = useNavigate();
+
     function onSelectionChange(value, { selectedRowData }) {
         console.log(value, selectedRowData);
         setSelectedRowKeys(value);
     }
 
+    const editArticle = (id) => {
+        navigate("/edit-article/" + id)
+    }
+
+
     return (<DefaultLayout {...props}>
         <div className={"kof-list-block"}>
         <Layout>
-            <Aside>
-                <Category language={props.language}/>
+            <Aside width={"150"}>
+                <Category language={props.language} selectCategory={(selectedCategory) => {
+                    setSelectedCategory(selectedCategory)
+                    fetchData({current, pageSize}, selectedCategory)
+                }}/>
             </Aside>
             <Content>
-                <Search language={props.language} setIsLoading={setIsLoading} setTotal={setTotal} setData={setData}/>
+                <Search language={props.language} setIsLoading={setIsLoading} setTotal={setTotal} setData={setData} page={current} size={pageSize} selectedCategory={selectedCategory}/>
                 <div style={{paddingRight: 50}}>
                     <div>
-                        <Button variant={"outline"} style={{marginRight: 12}}>{translate('Create')}</Button>
+                        <Button variant={"outline"} style={{marginRight: 12}} onClick={() => navigate('/edit-article')}>{translate('Create')}</Button>
                         <Button variant={"outline"} style={{marginRight: 12}} disabled={selectedRowKeys.length === 0}>{translate('Publish')}</Button>
                         <Button variant={"outline"} style={{marginRight: 12}} disabled={selectedRowKeys.length === 0}>{translate('Unpublish')}</Button>
                         <Button theme={"danger"} disabled={selectedRowKeys.length === 0}>{translate('Delete')}</Button>
@@ -158,7 +165,7 @@ export default (props) => {
                 <Table
                     data={data}
                     columns={columns}
-                    rowKey="index"
+                    rowKey="id"
                     tableLayout="auto"
                     verticalAlign="top"
                     loading={isLoading}
@@ -171,9 +178,9 @@ export default (props) => {
                         current,
                         pageSize,
                         total,
-                        showJumper: true,
+                        /*showJumper: true,
                         showSizer: true,
-                        visibleWithOnePage: true,
+                        visibleWithOnePage: true,*/
                         onChange(pageInfo) {
                             console.log(pageInfo, 'onChange pageInfo');
                             reHandleChange(pageInfo);

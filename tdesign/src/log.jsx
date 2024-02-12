@@ -103,9 +103,9 @@ export default function TableBasic(props) {
                                 current,
                                 pageSize,
                                 total,
-                                showJumper: true,
+                                /*showJumper: true,
                                 showSizer: true,
-                                visibleWithOnePage: true,
+                                visibleWithOnePage: true,*/
                                 onChange(pageInfo) {
                                     console.log(pageInfo, 'onChange pageInfo');
                                     reHandleChange(pageInfo);

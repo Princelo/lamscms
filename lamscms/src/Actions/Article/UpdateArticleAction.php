@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Actions\Article;
 
 use App\Domain\Article;
-use App\Domain\User;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Exception\HttpBadRequestException;
 
@@ -16,7 +15,7 @@ class UpdateArticleAction extends ArticleAction
     protected function action(): Response
     {
         $formData = $this->getFormDataAsArray();
-        $mustContains = ["title", "category", "body", "mobileBody", "published", "isHeadline", "priority",
+        $mustContains = ["title", "category", "body", "published", "isHeadline", "priority",
             "preview", "avatarURL", "tags"];
         $missingFields = validate_form($formData, $mustContains);
         if (!empty($missingFields)) {

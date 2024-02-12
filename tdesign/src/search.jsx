@@ -1,7 +1,6 @@
 import React, {useRef, useState} from 'react';
-import {Form, Input, Button, Select, DatePicker, MessagePlugin} from 'tdesign-react';
+import {Form, Input, Button, Select, DateRangePicker, MessagePlugin} from 'tdesign-react';
 import {translateWithLanguage} from "./i18n";
-import {ChevronDownIcon, ChevronUpIcon} from "tdesign-icons-react";
 
 const {FormItem} = Form;
 
@@ -17,23 +16,32 @@ export default (props) => {
     const toggleExpand = () => {
         setExpands(!expands)
     }
-    const {setIsLoading, setTotal, setData} = props
+    const {setIsLoading, setTotal, setData, page, size, selectedCategory} = props
     const onSubmit = (e) => {
         if (e.validateResult === true) {
             setIsLoading(true);
-            let form = formRef.current.getAllFieldsValue()
-            form.published = form.published == 'n' ? false : form.published
-            form.published = form.published == 'y' ? true : form.published
-            form.published = form.published == '' ? null : form.published
+            let published = formRef.current.getFieldValue('published')
+            published = published === undefined ? null : published
+            published = published === 'n' ? '0' : published
+            published = published === 'y' ? '1' : published
+            let publishedSince = null
+            let publishedUntil = null
             if (publishedDate != null) {
-                form.publishedSince = publishedDate[0]
-                form.publishedUntil = publishedDate[1]
+                publishedSince = publishedDate[0]
+                publishedUntil = publishedDate[1]
+            }
+            let category = selectedCategory + ''
+            if (category == '0') {
+                category = null
             }
             const requestOptions = {
                 crossDomain: true,
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(form)
+                body: JSON.stringify({
+                    "page": page, "category": category, "published": published, "publishedSince": publishedSince,
+                    "publishedUntil": publishedUntil, "size": size, "keyword": formRef.current.getFieldValue('keyword')
+                })
             };
             fetch(`http://localhost:8080/articles`, requestOptions)
                 .then(data => data.json())
@@ -54,6 +62,7 @@ export default (props) => {
                 });
         }
     };
+    const publishOptions = [{label:translate('Yes'), value:'y'}, {label:translate('No'), value:'n'}];
     return (
         <div className={"kof-search-box"}>
             <Form ref={formRef} layout={"inline"} labelAlign={"left"} onSubmit={onSubmit} >
@@ -61,34 +70,18 @@ export default (props) => {
                     <Input/>
                 </FormItem>
                 <FormItem label={translate('Published')} name="published">
-                    <Select placeholder={translate('All')} clearable>
-                        <Option key="y" label={translate('Yes')} value="y"/>
-                        <Option key="n" label={translate('No')} value="n"/>
+                    <Select placeholder={translate('All')} options={publishOptions} clearable>
                     </Select>
                 </FormItem>
-                <FormItem style={{position: 'absolute', right: 50}}>
-                    <Button type="submit" theme="primary" style={{position: 'absolute', right: 68 + 12}}>
+                <FormItem label={translate('Published Date')} name={"published-between"}>
+                    <DateRangePicker mode="date" range clearable={true} onChange={setPublishedDate}/>
+                </FormItem>
+                <FormItem style={{alignItems: 'flex-end'}}>
+                    <Button type="submit" theme="primary">
                         {translate('Search')}
-                    </Button>
-                    <Button variant="text" className="kof-more"
-                            style={{position: 'absolute', right: 0, width: 68, background: '#fff', color: '#3066d5'}}
-                            onClick={toggleExpand}>
-                        {expands ?
-                            <span>{translate('More')}<ChevronUpIcon/></span>
-                            :
-                            <span>{translate('More')}<ChevronDownIcon/></span>
-                        }
                     </Button>
                 </FormItem>
             </Form>
-            {expands ?
-                <Form style={{marginTop: 18}} labelAlign={"left"}>
-                    <FormItem label={translate('Published Date')} name={"published-between"}>
-                        <DatePicker mode="date" range clearable={true} onChange={setPublishedDate}/>
-                    </FormItem>
-                </Form>
-                : <></>
-            }
         </div>
     );
 }

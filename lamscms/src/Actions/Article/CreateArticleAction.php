@@ -23,6 +23,7 @@ class CreateArticleAction extends ArticleAction
             throw new HttpBadRequestException($this->request, "the request body you sent is invalid");
         }
         $article = new Article(...$formData);
+        $article->setText(strip_tags($article->getBody()));
         $id = $this->articleRepository->create($article);
         $article->setID($id);
         return $this->respondWithData($article);

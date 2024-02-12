@@ -17,13 +17,13 @@ class CategoryRepository
         $sql = <<<SQL
             select
                 id,
-                parent_id parentID,
+                parent_id "parentID",
                 title,
                 code,
                 type,
-                list_page_template listPageTemplate,
-                detail_page_template detailPageTemplate,
-                contains_content containsContent,
+                list_page_template "listPageTemplate",
+                detail_page_template "detailPageTemplate",
+                contains_content "containsContent",
                 hidden,
                 sort,
                 (select title from category where id = o.parent_id) parent
@@ -41,13 +41,13 @@ class CategoryRepository
         $sql = <<<SQL
             select
                 id,
-                parent_id parentID,
+                parent_id "parentID",
                 title,
                 code,
                 type,
-                list_page_template listPageTemplate,
-                detail_page_template detailPageTemplate,
-                contains_content containsContent,
+                list_page_template "listPageTemplate",
+                detail_page_template "detailPageTemplate",
+                contains_content "containsContent",
                 hidden,
                 (select title from category where id = o.parent_id) parent
             from
@@ -145,13 +145,13 @@ class CategoryRepository
         $sql = <<<SQL
             select
                 id,
-                parent_id parentID,
+                parent_id "parentID",
                 title,
                 code,
                 type,
-                list_page_template listPageTemplate,
-                detail_page_template detailPageTemplate,
-                contains_content containsContent,
+                list_page_template "listPageTemplate",
+                detail_page_template "detailPageTemplate",
+                contains_content "containsContent",
                 hidden,
                 sort
             from category where sort < (select sort from category where id = :id)
@@ -169,13 +169,13 @@ class CategoryRepository
         $sql = <<<SQL
             select
                 id,
-                parent_id parentID,
+                parent_id "parentID",
                 title,
                 code,
                 type,
-                list_page_template listPageTemplate,
-                detail_page_template detailPageTemplate,
-                contains_content containsContent,
+                list_page_template "listPageTemplate",
+                detail_page_template "detailPageTemplate",
+                contains_content "containsContent",
                 hidden,
                 sort
             from category where sort > (select sort from category where id = :id)

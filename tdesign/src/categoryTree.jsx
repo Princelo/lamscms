@@ -1,59 +1,57 @@
-import React, {useState} from 'react';
-import {Tree, Menu} from 'tdesign-react';
+import React, {useEffect, useState} from 'react';
+import {Menu, MessagePlugin} from 'tdesign-react';
+import tree from './treeMaker'
 import {translateWithLanguage} from "./i18n";
-import makeTree from './treeMaker'
-import {
-    AppIcon, BrowseIcon,
-    EditIcon,
-    FileIcon,
-    HomeIcon,
-    LogoCodepenIcon,
-    SettingIcon,
-    UserIcon,
-    ViewListIcon, WalletIcon
-} from "tdesign-icons-react";
-
 
 export default (props) => {
-    const translate = translateWithLanguage(props.language)
-    const items = [
-        {
-            label: translate('About Us'),
-            value: '0',
-            children: [
-                {
-                    label: translate('Introduce'),
-                    value: '0-1'
-                },
-                {
-                    label: translate('News'),
-                    value: '0-2'
-                },
-            ],
-        },
-        {
-            label: translate('Business'),
-            value: '1'
-        },
-        {
-            label: translate('Member Zone'),
-            value: '2',
-            children: [
-                {
-                    label: translate('Join us'),
-                    value: "2-1"
-                },
-                {
-                    label: translate('Recruitment'),
-                    value: "2-2"
-                },
-            ],
-        },
-        {
-            label: translate('Contact'),
-            value: "3"
-        },
-    ];
+    const {selectCategory, language} = props
+    const translate = translateWithLanguage(language)
+    const [items, setItems] = useState([])
+    const [error, setError] = useState()
+
+    const convert = (node) => {
+        node.children.map(convert)
+        if (node.children.length === 0) node.children = undefined
+        return node;
+    }
+
+    async function fetchData() {
+        try {
+            fetch(`http://localhost:8080/category/tree`)
+                .then(data => data.json())
+                .then(
+                    (data) => {
+                        if (data.statusCode === 200) {
+                            return data.data.map(convert)
+                        } else {
+                            MessagePlugin.error(data.error.description);
+                        }
+                    }
+                )
+                .then((data) => {
+                    let newData = []
+                    newData.push(
+                        {title: translate('All'), id: 0}
+                    )
+                    for (let i = 1; i <= data.length; i++) {
+                        newData.push(data[i-1])
+                    }
+                    console.log(newData)
+                    return newData
+                })
+                .then(setItems)
+                .catch(error => {
+                    setError(error)
+                    console.log("error" + error)
+                });
+        } catch (err) {
+            setItems([]);
+        }
+    }
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const [menuItemSelected, setMenuItemSelected] = useState()
     const [collapsed, setCollapsed] = useState(false)
@@ -61,7 +59,6 @@ export default (props) => {
 
     return (
         <div className="tdesign-tree-base">
-            {/*<Tree data={items} activable hover transition/>*/}
             <Menu
                 value={menuItemSelected}
                 collapsed={collapsed}
@@ -72,7 +69,7 @@ export default (props) => {
                 style={{width: 180}}
             >
                 {
-                    makeTree(items)
+                    tree(items, selectCategory)
                 }
             </Menu>
         </div>

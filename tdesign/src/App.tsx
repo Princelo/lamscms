@@ -15,7 +15,8 @@ import {
     ManagerPage,
     EditManagerPage,
     ChangePasswordPage,
-    CreateManagerPage
+    CreateManagerPage,
+    TemplatesPage
 } from "./Pages";
 
 function App() {
@@ -31,15 +32,18 @@ function App() {
             <Route path="/admin" element={<AdminPage {...states}/>}/>
             <Route path="/articles" element={<ArticlesPage {...states}/>}/>
             <Route path="/edit-article/:id" element={<EditorPage {...states}/>}/>
+            <Route path="/edit-article" element={<EditorPage {...states}/>}/>
             <Route path="/code-edit/:id" element={<CodeEdit {...states}/>}/>
+            <Route path="/code-edit" element={<CodeEdit {...states}/>}/>
             <Route path="/config" element={<ConfigPage {...states}/>}/>
             <Route path="/category" element={<CategoryPage {...states}/>}/>
-            <Route path="/create-category" element={<CreateCategoryPage {...states}/>}/>
             <Route path="/edit-category/:id" element={<EditCategoryPage {...states}/>}/>
+            <Route path="/edit-category" element={<EditCategoryPage {...states}/>}/>
             <Route path="/manager" element={<ManagerPage {...states}/>}/>
             <Route path="/create-manager" element={<CreateManagerPage {...states}/>}/>
             <Route path="/manager/:id" element={<EditManagerPage {...states}/>}/>
             <Route path="/change-password" element={<ChangePasswordPage {...states}/>}/>
+            <Route path="/templates" element={<TemplatesPage {...states}/>}/>
         </Routes>
     );
 }

@@ -13,6 +13,7 @@ import {
 import Layout from "./layout";
 import {translateWithLanguage} from "./i18n";
 import {ErrorCircleFilledIcon, HelpCircleIcon} from "tdesign-icons-react";
+import meta from "./meta";
 
 const {FormItem} = Form;
 export default (props) => {
@@ -20,6 +21,7 @@ export default (props) => {
     const translate = translateWithLanguage(props.language)
 
     let params = useParams();
+    const isCreating = params.id == null
 
     const formRef = useRef();
 
@@ -32,22 +34,29 @@ export default (props) => {
 
     const onSubmit = (e) => {
         if (e.validateResult === true) {
-            let form = formRef.current.getAllFieldsValue()
-            form.containsContent = containsContent;
-            form.hidden = hidden;
+            let form = formRef.current
+            form.setFieldsValue({"containsContent": containsContent, "hidden": hidden})
             if (e.validateResult === true) {
                 const requestOptions = {
                     crossDomain: true,
-                    method: 'PUT',
+                    method: isCreating ? 'POST' : 'PUT',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(form)
+                    body: JSON.stringify(form.getFieldsValue(meta.category))
                 };
-                fetch(`http://localhost:8080/category/${params.id}`, requestOptions)
+                let url = "http://localhost:8080/category"
+                if (!isCreating) {
+                    url += `/${params.id}`
+                }
+                fetch(url, requestOptions)
                     .then(data => data.json())
                     .then(
                         (data) => {
                             if (data.statusCode === 200) {
-                                MessagePlugin.success(translate('Updated Successfully'));
+                                if (isCreating) {
+                                    MessagePlugin.success(translate('Created Successfully'));
+                                } else {
+                                    MessagePlugin.success(translate('Updated Successfully'));
+                                }
                             } else {
                                 MessagePlugin.error(data.error.description);
                             }
@@ -62,42 +71,44 @@ export default (props) => {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:8080/category/${params.id}`)
-            .then(data => data.json())
-            .then(
-                (data) => {
-                    if (data.statusCode === 200) {
-                        return data.data
-                    } else {
-                        MessagePlugin.error(data.error.description);
+        if (!isCreating) {
+            fetch(`http://localhost:8080/category/${params.id}`)
+                .then(data => data.json())
+                .then(
+                    (data) => {
+                        if (data.statusCode === 200) {
+                            return data.data
+                        } else {
+                            MessagePlugin.error(data.error.description);
+                        }
                     }
+                )
+                .then((category) => {
+                        setCategory(category)
+                    formRef.current.setFieldsValue(category)
                 }
-            )
-            .then((category) => {
-                    setCategory(category)
-                formRef.current.setFieldsValue(category)
-            }
-            )
-            .catch(error => {
-                setError(error)
-                console.log("error" + error)
-            });
-        fetch(`http://localhost:8080/category/parentCandidates/${params.id}`)
-            .then(data => data.json())
-            .then(
-                (data) => {
-                    if (data.statusCode === 200) {
-                        return data.data.filter(e => e.id !== parseInt(params.id))
-                    } else {
-                        MessagePlugin.error(data.error.description);
+                )
+                .catch(error => {
+                    setError(error)
+                    console.log("error" + error)
+                });
+            fetch(`http://localhost:8080/category/parent-candidates/${params.id}`)
+                .then(data => data.json())
+                .then(
+                    (data) => {
+                        if (data.statusCode === 200) {
+                            return data.data.filter(e => e.id !== parseInt(params.id))
+                        } else {
+                            MessagePlugin.error(data.error.description);
+                        }
                     }
-                }
-            )
-            .then(setParentCategories)
-            .catch(error => {
-                setError(error)
-                console.log("error" + error)
-            });
+                )
+                .then(setParentCategories)
+                .catch(error => {
+                    setError(error)
+                    console.log("error" + error)
+                });
+        }
         fetch(`http://localhost:8080/templates`)
             .then(data => data.json())
             .then(
@@ -161,10 +172,14 @@ export default (props) => {
     }
 
     function validateCode(code) {
+        let currentId = -1
+        if (!isCreating) {
+            currentId = params.id
+        }
         return new Promise((resolve) => {
             fetch(`http://localhost:8080/categories`)
                 .then(data => data.json())
-                .then((data) => data.data.filter(e => e.id !== parseInt(params.id)).map(d => d.code))
+                .then((data) => data.data.filter(e => e.id !== parseInt(currentId)).map(d => d.code))
                 .then((codes) => resolve(!codes.includes(code)))
                 .catch(error => {
                     console.log("error" + error)
@@ -210,7 +225,9 @@ export default (props) => {
             <Layout {...props}>
                 <div className="kof-form-block">
                     <Form ref={formRef} statusIcon={true} onSubmit={onSubmit} colon labelWidth={180} rules={rules}>
-                        <h1 style={{marginBottom: 48}}>{translate('Edit Category')}</h1>
+                        <h1 style={{marginBottom: 48}}>{
+                            (params.id != null) ? translate('Edit Category') : translate('Create Category')
+                        }</h1>
                         <FormItem label={translate('Category Title')} name="title">
                             <Input maxLength={20} onChange={setPopulated} value={category.title} defaultValue={category.title}/>
                         </FormItem>

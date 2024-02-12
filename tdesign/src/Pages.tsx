@@ -14,6 +14,7 @@ import Manager from './manager'
 import EditManager from "./editManager";
 import ChangePassword from "./changePassword";
 import CreateManager from "./createManager";
+import Templates from "./templates";
 
 export function HomePage(props) {
     return (
@@ -73,4 +74,8 @@ export function ChangePasswordPage(props) {
 
 export function CreateManagerPage(props) {
     return <CreateManager {...props} />
+}
+
+export function TemplatesPage(props) {
+    return <Templates {...props}/>
 }

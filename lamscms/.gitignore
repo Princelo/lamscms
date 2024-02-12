@@ -61,3 +61,15 @@ logs/*
 public/assets/*
 !public/assets/.htaccess
 
+!public/attachments/
+public/attachments/*
+!public/attachments/.htaccess
+
+.cs.php
+.editorconfig
+.fleet/
+.github/
+.phpstorm.meta.php
+.scrutinizer.yml
+.sonarcloud.properties
+tags

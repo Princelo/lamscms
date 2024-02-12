@@ -3,20 +3,22 @@ import {Menu} from "tdesign-react";
 
 const {SubMenu, MenuItem} = Menu;
 
-export default function makeTree(items) {
+export default function tree(items, selectCategory) {
 
     return (
         items.map(item => {
             if (item.children != null) {
                 return (
-                    <SubMenu value={item.value} title={item.label} key={item.value}>
-                        {makeTree(item.children)}
+                    <SubMenu value={item.id} title={item.title} key={item.id}>
+                        {tree(item.children, selectCategory)}
                     </SubMenu>
                 );
             } else {
                 return (
-                    <MenuItem value={item.value} key={item.value}>
-                        <span>{item.label}</span>
+                    <MenuItem value={item.id} key={item.id} onClick={(e) => {
+                        selectCategory(item.id)
+                    }}>
+                        <span>{item.title}</span>
                     </MenuItem>
                 )
             }

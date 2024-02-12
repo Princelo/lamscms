@@ -10,6 +10,7 @@ use App\Actions\Article\UpdateArticleAction;
 use App\Actions\Article\ViewArticleAction;
 use App\Actions\Category\CreateCategoryAction;
 use App\Actions\Category\DeleteCategoryAction;
+use App\Actions\Category\GetCategoryTreeAction;
 use App\Actions\Category\ListCategoryAction;
 use App\Actions\Category\ListParentCandidatesOfCategoryAction;
 use App\Actions\Category\MoveCategoryDownAction;
@@ -23,6 +24,7 @@ use App\Actions\Template\DeleteTemplateAction;
 use App\Actions\Template\ListTemplateAction;
 use App\Actions\Template\UpdateTemplateAction;
 use App\Actions\Template\ViewTemplateAction;
+use App\Actions\Attachment\UploadImageAction;
 use App\Actions\User\ChangePasswordAction;
 use App\Actions\User\CreateUserAction;
 use App\Actions\User\DeleteUserAction;
@@ -45,7 +47,7 @@ return function (App $app) {
     $app->get('/article/{id}', ViewArticleAction::class);
     $app->post('/articles', ListArticleAction::class);
     $app->post('/article', CreateArticleAction::class);
-    $app->put('/article', UpdateArticleAction::class);
+    $app->put('/article/{id}', UpdateArticleAction::class);
     $app->delete('/article/{id}', DeleteArticleAction::class);
     $app->delete('/articles', DeleteArticlesAction::class);
     $app->post('/article/publish-article/{id}', PublishArticleAction::class);
@@ -55,8 +57,9 @@ return function (App $app) {
     $app->get('/settings', ViewSettingsAction::class);
 
     $app->get('/categories', ListCategoryAction::class);
-    $app->get('/category/parentCandidates', ListParentCandidatesOfCategoryAction::class);
-    $app->get('/category/parentCandidates/{id}', ListParentCandidatesOfCategoryAction::class);
+    $app->get('/category/parent-candidates', ListParentCandidatesOfCategoryAction::class);
+    $app->get('/category/parent-candidates/{id}', ListParentCandidatesOfCategoryAction::class);
+    $app->get('/category/tree', GetCategoryTreeAction::class);
     $app->get('/category/{id}', ViewCategoryAction::class);
     $app->post('/category', CreateCategoryAction::class);
     $app->delete('/category/{id}', DeleteCategoryAction::class);
@@ -64,9 +67,12 @@ return function (App $app) {
     $app->post('/category/move-down/{id}', MoveCategoryDownAction::class);
     $app->put('/category/{id}', UpdateCategoryAction::class);
 
+    $app->post('/templates', ListTemplateAction::class);
     $app->get('/templates', ListTemplateAction::class);
     $app->get('/template/{id}', ViewTemplateAction::class);
     $app->post('/template', CreateTemplateAction::class);
     $app->delete('/template/{id}', DeleteTemplateAction::class);
     $app->put('/template/{id}', UpdateTemplateAction::class);
+
+    $app->post('/upload-image', UploadImageAction::class);
 };

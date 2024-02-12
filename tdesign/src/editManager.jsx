@@ -24,8 +24,8 @@ export default (props) => {
 
     const onSubmit = (e) => {
         if (e.validateResult === true) {
-            let enabled = formRef.current.getAllFieldsValue()['enabled']??user.enabled;
-            let role = formRef.current.getAllFieldsValue()['role']??user.role;
+            let enabled = formRef.current.getFieldValue('enabled')??user.enabled;
+            let role = formRef.current.getFieldValue('role')??user.role;
             const requestOptions = {
                 crossDomain:true,
                 method: 'PATCH',
@@ -110,7 +110,7 @@ export default (props) => {
             .then(data => data.json())
             .then((data) => {
                 setUser(data.data)
-                console.log(data);
+                formRef.current.setFieldsValue(data.data)
                 if (data.data.role === 'root' && !isSuperAdmin) {
                     MessagePlugin.warning('Wrong permission!')
                     goBack();
@@ -152,37 +152,18 @@ export default (props) => {
                     <h1 style={{marginBottom: 48}}>{translate('Edit Manager')}</h1>
                     <Form ref={formRef} statusIcon={true} onSubmit={onSubmit} colon labelWidth={180} >
                         <FormItem label={translate('Login Name')} name="login-name">
-                            <Input  disabled placeholder={user.username}/>
+                            <Input disabled placeholder={user.username}/>
                         </FormItem>
                         <FormItem label={translate('Enabled')} name="enabled">
-                            {user.enabled?
-                                <Switch defaultValue={user.enabled} value={user.enabled}/>
-                                :<></>
-                            }
-                            {!user.enabled?
-                                <Switch defaultValue={user.enabled} value={user.enabled}/>
-                                :<></>
-                            }
+                            <Switch />
                         </FormItem>
                         <FormItem label={translate('Role')} name="role">
-                            {(user.role === 'root')?
-                                <Select value={user.role} defaultValue={user.role} style={{width: '40%'}}
-                                        placeholder={translate('- Select an option -')} disabled={!isSuperAdmin}>
-                                    <Option key="root" label={translate('Super Admin')} value="root"/>
-                                    <Option key="admin" label={translate('System Admin')} value="admin"/>
-                                </Select>
-                                :<></>
-                            }
-                            {(user.role === 'admin')?
-                                <Select value={user.role} defaultValue={user.role} style={{width: '40%'}}
-                                        placeholder={translate('- Select an option -')} disabled={!isSuperAdmin}>
-                                    <Option key="root" label={translate('Super Admin')} value="root"/>
-                                    <Option key="admin" label={translate('System Admin')} value="admin"/>
-                                </Select>
-                                :<></>
-                            }
+                            <Select style={{width: '40%'}} placeholder={translate('- Select an option -')} disabled={!isSuperAdmin}>
+                                <Option key="root" label={translate('Super Admin')} value="root"/>
+                                <Option key="admin" label={translate('System Admin')} value="admin"/>
+                            </Select>
                         </FormItem>
-                        <FormItem>
+                        <FormItem label={translate("Reset Password")}>
                             <div>
                                 <Button theme={"warning"} onClick={resetPassword}>
                                     <RefreshIcon style={{marginRight: 12}}/>

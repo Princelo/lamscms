@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Layout from './layout';
 
-import {Button, MessagePlugin, PopConfirm, Switch, Table} from 'tdesign-react';
+import {Button, MessagePlugin, Popconfirm, Switch, Table} from 'tdesign-react';
 import {EditIcon, UserClearIcon} from "tdesign-icons-react";
 import {translateWithLanguage} from "./i18n";
 import {useNavigate} from "react-router";
@@ -66,7 +66,7 @@ export default (props) => {
                         }
                         {record.row.username === user.username?
                             <></>:
-                            <PopConfirm
+                            <Popconfirm
                                 visible={visible[record.index]}
                                 content={translate('Are you sure want to delete this user?')}
                                 confirmBtn={<Button theme="danger" size={'small'} onClick={() => deleteClickHandler(record.row.username)}>{translate('Delete')}</Button>}
@@ -82,7 +82,7 @@ export default (props) => {
                                 }}
                             >
                             </UserClearIcon>
-                            </PopConfirm>
+                            </Popconfirm>
                         }
                     </>
                 )

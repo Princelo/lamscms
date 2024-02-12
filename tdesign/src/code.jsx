@@ -3,7 +3,9 @@ import React, {useEffect, useState} from 'react';
 import Layout from './layout';
 import NetworkError from './network-error';
 import {useParams} from "react-router-dom";
-import {Button, Notification, Switch, Slider, Loading, Tabs} from 'tdesign-react';
+import {Button, Switch, Slider, Loading, MessagePlugin, Input, Form} from 'tdesign-react';
+import {translateWithLanguage} from "./i18n";
+import {useNavigate} from "react-router-dom";
 
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-twig";
@@ -33,26 +35,32 @@ import 'froala-editor/js/plugins/font_size.min.js';
 import 'froala-editor/js/plugins/fullscreen.min.js';
 import 'froala-editor/js/plugins/image_manager.min.js';
 import 'froala-editor/js/plugins/inline_class.min.js';
-import TabPanel from "tdesign-react/es/tabs/TabPanel";
-import {translateWithLanguage} from "./i18n";
-
-function onChange(newValue) {
-    console.log("change", newValue);
-}
-
-function saveCode(code) {
-    console.log("saved" + code);
-    Notification.info({
-        title: 'Success',
-        content: 'Saved',
-        duration: 3000,
-    });
-}
+import Textarea from "tdesign-react/es/textarea/Textarea";
+const {FormItem} = Form;
 
 
 
 export default (props) => {
     const translate = translateWithLanguage(props.language)
+
+    function onChange(newValue) {
+        console.log("change", newValue);
+    }
+
+    function saveCode(code) {
+        console.log("saved" + code);
+        MessagePlugin.info(translate('submit'));
+    }
+    const navigate = useNavigate();
+
+    const [saved, setSaved] = useState(false);
+    const goBack = () => {
+        /*if (!saved) {
+            setVisibleWarning(true);
+        }*/
+        navigate("/templates")
+    }
+
     let params = useParams();
     //console.log(params);
     const [data, setData] = useState();
@@ -64,7 +72,7 @@ export default (props) => {
     const [vimMode, setVimMode] = useState(false);
     const [fontSize, setFontSize] = useState(12);
     useEffect(() => {
-        fetch(`http://localhost:9090/code.php?${params.id}`)
+        fetch(`http://localhost:8080/templates?${params.id}`)
             .then(data => data.json())
             .then(setData)
             .then(() => setLoading(false))
@@ -92,44 +100,47 @@ export default (props) => {
         <Layout {...props}>
             <div className={"kof-form-block"}>
                 <Loading size="small" loading={loading} showOverlay>
-                    <div className={"editor-form-item"}>
-                        <Tabs placement={'top'} size={'medium'} defaultValue={'content'}>
-                            <TabPanel value="content" label={translate('Content')}>
-                                <FroalaEditorComponent tag='textarea' config={{pluginsEnabled: ['align']}}/>
-                            </TabPanel>
-                            <TabPanel value="code-template" label={translate('Code Template')}>
-                                <div className={"code-config"}>
-                                    <label>Dark Mode</label>
-                                    <Switch size="large" value={darkMode} onChange={toggleTheme} />
-                                </div>
-                                <div className={"code-config"}>
-                                    <label>Vim Mode</label>
-                                    <Switch size="large" value={vimMode} onChange={toggleEditMode} />
-                                </div>
-                                <div className={"code-config"}>
-                                    <label>Text Size</label>
-                                    <Slider min={10} max={36} value={fontSize} onChange={setFontSize}></Slider>
-                                </div>
-                                <div className={"code-editor"}>
-                                    <AceEditor mode="twig"
-                                               theme={theme}
-                                               onChange={onChange}
-                                               name="UNIQUE_ID_OF_DIV"
-                                               editorProps={{$blockScrolling: true}}
-                                               value={data?.content}
-                                               keyboardHandler={keyBinding}
-                                               width={"100%"}
-                                               fontSize={fontSize}
-                                    />
-                                </div>
-                            </TabPanel>
-                        </Tabs>
-                    </div>
-                <Button type="submit" theme="primary" onClick={() => saveCode(data?.content)}>
-                    提交
-                </Button>
+                    <Form>
+                        <FormItem label={translate('Title')} name="title">
+                            <Input/>
+                        </FormItem>
+                        <FormItem label={translate('Code')} name="code">
+                            <Input/>
+                        </FormItem>
+                        <FormItem label={translate('Dark Mode')} name="darkMode">
+                            <Switch size="large" defaultValue={darkMode} onChange={toggleTheme} />
+                        </FormItem>
+                        <FormItem label={translate('Vim Mode')} name="vimMode">
+                            <Switch size="large" defaultValue={vimMode} onChange={toggleEditMode} />
+                        </FormItem>
+                        <FormItem label={translate('Text Size')} name="fontSize">
+                            <Slider min={10} max={36} value={fontSize} onChange={setFontSize}></Slider>
+                        </FormItem>
+                        <FormItem style={{display:'none'}} name="code">
+                            <Textarea/>
+                        </FormItem>
+                    </Form>
+                    <AceEditor mode="twig"
+                               theme={theme}
+                               onChange={onChange}
+                               name="UNIQUE_ID_OF_DIV"
+                               editorProps={{$blockScrolling: true}}
+                               value={data?.content}
+                               keyboardHandler={keyBinding}
+                               width={"100%"}
+                               fontSize={fontSize}
+                    />
                 </Loading>
             </div>
+                <div className={"form-submit-container"}>
+                    <Button theme="cancel" style={{position: 'absolute', right: 134 + 24 + 80}} onClick={goBack}>
+                        {saved ? translate('Back') : translate('Cancel')}
+                    </Button>
+                    <Button type="submit" theme="primary" style={{position: 'absolute', right: 134 + 24}}
+                            onClick={() => formRef.current.submit()}>
+                        {translate('Save')}
+                    </Button>
+                </div>
         </Layout>
     );
 }

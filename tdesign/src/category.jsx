@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Layout from './layout';
 
-import {Button, MessagePlugin, PopConfirm, Table} from 'tdesign-react';
+import {Button, MessagePlugin, Popconfirm, Table} from 'tdesign-react';
 import {ArrowDownIcon, ArrowUpIcon, DeleteIcon, EditIcon} from "tdesign-icons-react";
 import {translateWithLanguage} from "./i18n";
 import {useNavigate} from "react-router";
@@ -119,7 +119,7 @@ export default (props) => {
                 return (
                     <>
                         <EditIcon className="kof-inline-icon-btn" style={{marginRight: 24}} onClick={() => editCategory(record.row.id)}/>
-                        <PopConfirm
+                        <Popconfirm
                             visible={visible[record.index]}
                             content={translate('Are you sure want to delete it?')}
                             confirmBtn={<Button theme="danger" size={'small'} onClick={() => deleteClickHandler(record.row.id)}>{translate('Delete')}</Button>}
@@ -135,7 +135,7 @@ export default (props) => {
                                 }}
                             >
                             </DeleteIcon>
-                        </PopConfirm>
+                        </Popconfirm>
                     </>
             )
             }
@@ -203,7 +203,7 @@ export default (props) => {
     const navigate = useNavigate();
 
     const createCategory = () => {
-        navigate("/create-category")
+        navigate("/edit-category")
     }
     const [editorVisible, setEditorVisible] = useState(false);
     const editCategory = (id) => {

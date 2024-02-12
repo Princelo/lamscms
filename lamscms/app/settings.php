@@ -13,15 +13,15 @@ return function (ContainerBuilder $containerBuilder) {
             'logger' => [
                 'name' => 'slim-app',
                 'path' => __DIR__ . '/../logs/app.log',
-                'level' => Logger::DEBUG,
+                'level' => Logger::ERROR,
             ],
         ],
     ]);
     $containerBuilder->addDefinitions([
         PDO::class => function (ContainerInterface $c) {
             return new PDO(
-                'mysql:host=127.0.0.1;dbname=lamscms',
-                'root',
+                'pgsql:host=127.0.0.1;port=5432;dbname=lamscms',
+                'postgres',
                 'hazardous',
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

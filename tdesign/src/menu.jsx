@@ -86,7 +86,9 @@ function MultiSide(props) {
                     </MenuItem>
                 </SubMenu>
                 <SubMenu value="3" title={<span>{translate('Code Template')}</span>} icon={<LogoCodepenIcon />}>
-                    <MenuItem value="3-1">
+                    <MenuItem value="3-1" onClick={() => {
+                        navigate("/templates")
+                    }}>
                         <span>{translate('Template List')}</span>
                     </MenuItem>
                     <MenuItem value="3-2">

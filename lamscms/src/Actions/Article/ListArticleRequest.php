@@ -3,15 +3,16 @@ namespace App\Actions\Article;
 
 use DateTime;
 
-class ListArticleRequest
+readonly class ListArticleRequest
 {
     public function __construct(
         private int     $page = 1,
         private int     $size = 5,
         private ?string $keyword = null,
-        private ?bool   $published = null,
+        private ?string $published = null,
         private ?string $publishedSince = null,
         private ?string $publishedUntil = null,
+        private ?string $category = null,
     )
     {
     }
@@ -42,9 +43,9 @@ class ListArticleRequest
     }
 
     /**
-     * @return bool|null
+     * @return string|null
      */
-    public function getPublished(): ?bool
+    public function getPublished(): ?string
     {
         return $this->published;
     }
@@ -65,6 +66,14 @@ class ListArticleRequest
     {
         if ($this->publishedUntil == null) return false;
         return str_to_date($this->publishedUntil." 23:59:59");
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCategory(): ?string
+    {
+        return $this->category;
     }
 
 }

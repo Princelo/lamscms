@@ -2,6 +2,7 @@
 namespace App\Repository;
 
 use App\Domain\Template;
+use App\Pagination\Pagination;
 use PDO;
 
 class TemplateRepository
@@ -88,6 +89,43 @@ class TemplateRepository
         $statement = $this->pdo->prepare($sql);
         $statement->bindValue(":id", $id);
         $statement->execute();
+    }
+
+    public function paginated(Pagination $pagination): array
+    {
+        $offset = $pagination->getOffset();
+        $size = $pagination->getSize();
+        $sql = <<<SQL
+            select
+                id,
+                title,
+                type,
+                body
+            from template
+            limit {$size} offset {$offset}
+        SQL;
+        $statement = $this->pdo->prepare($sql);
+        $pagination->bindValues($statement);
+        $statement->execute();
+        $templates = $statement->fetchAll();
+        $templates = array_map(
+            fn ($template) => new Template(...$template),
+            $templates
+        );
+        $sql = <<<SQL
+            select count(*) as count from template
+        SQL;
+        $statement = $this->pdo->prepare($sql);
+        $pagination->bindValues($statement);
+        $statement->execute();
+        $count = $statement->fetchColumn();
+        $count = intval($count);
+        return [
+            'total' => $count,
+            'perPage' => $pagination->getSize(),
+            'currentPage' => $pagination->getPage(),
+            'data' => $templates
+        ];
     }
 
 }

@@ -5,12 +5,15 @@ use App\Domain\Article;
 use App\Pagination\Pagination;
 use DateTime;
 use PDO;
+use Psr\Log\LoggerInterface;
 
 class ArticleRepository
 {
     public function __construct(
         private PDO $pdo,
-        private TagRepository $tagRepository
+        private TagRepository $tagRepository,
+        private AttachmentRepository $attachmentRepository,
+        protected LoggerInterface $logger
     )
     {
     }
@@ -19,23 +22,24 @@ class ArticleRepository
     {
         $sql = <<<SQL
             select
-                id,
-                title,
-                category,
-                body,
-                mobile_body mobileBody,
-                published,
-                is_headline isHeadline,
-                priority,
-                preview,
-                avatar_url avatarURL,
-                created_at createdAt,
-                created_by createdBy,
-                modified_at modifiedAt,
-                modified_by modifiedBy,
-                published_at publishedAt,
-                published_by publishedBy
-            from article where id = :id
+                article.id,
+                article.title,
+                article.category,
+                article.body,
+                article.mobile_body "mobileBody",
+                article.published,
+                article.is_headline "isHeadline",
+                article.priority,
+                article.preview,
+                article.avatar_url "avatarURL",
+                article.avatar_name "avatarName",
+                article.created_at "createdAt",
+                article.created_by "createdBy",
+                article.modified_at "modifiedAt",
+                article.modified_by "modifiedBy",
+                article.published_at "publishedAt",
+                article.published_by "publishedBy"
+            from article where article.id = :id
         SQL;
 
         $statement = $this->pdo->prepare($sql);
@@ -46,14 +50,13 @@ class ArticleRepository
             return null;
         }
         $article = $this->toArticle($record);
-        $tags = array_map(fn ($record) => $record['name'], $this->tagRepository->findArticleTags($article->getId()));
-        $article->setTags($tags);
+        //$article->setTags($tags);
         return $article;
     }
 
     public function paginated(Pagination $pagination): array
     {
-        $limit = $pagination->getLimit();
+        $offset = $pagination->getOffset();
         $size = $pagination->getSize();
         $filters = $pagination->getFilters();
         $where = "";
@@ -64,23 +67,23 @@ class ArticleRepository
                 title,
                 category,
                 body,
-                mobile_body mobileBody,
+                mobile_body "mobileBody",
                 published,
-                is_headline isHeadline,
+                is_headline "isHeadline",
                 priority,
                 preview,
-                avatar_url avatarURL,
-                created_at createdAt,
-                created_by createdBy,
-                modified_at modifiedAt,
-                modified_by modifiedBy,
-                published_at publishedAt,
-                published_by publishedBy
+                avatar_url "avatarURL",
+                avatar_name "avatarName",
+                created_at "createdAt",
+                created_by "createdBy",
+                modified_at "modifiedAt",
+                modified_by "modifiedBy",
+                published_at "publishedAt",
+                published_by "publishedBy"
             from article
                 $where
-            limit ${limit}, ${size}
+            limit {$size} offset {$offset}
         SQL;
-
         $statement = $this->pdo->prepare($sql);
         $pagination->bindValues($statement);
         $statement->execute();
@@ -102,7 +105,8 @@ class ArticleRepository
             'total' => $count,
             'perPage' => $pagination->getSize(),
             'currentPage' => $pagination->getPage(),
-            'data' => $articles
+            'data' => $articles,
+            'sql' => $sql
         ];
     }
 
@@ -110,11 +114,11 @@ class ArticleRepository
     {
         $sql = <<<SQL
             insert into article(title, category, body, mobile_body, published, is_headline,
-                                priority, preview, avatar_url, created_at, created_by,
-                                published_at, published_by)
+                                priority, preview, avatar_url, avatar_name, created_at, created_by,
+                                published_at, published_by, text)
             values (:title, :category, :body, :mobile_body, :published, :is_headline,
-                    :priority, :preview, :avatar_url, :created_at, :created_by,
-                    :published_at, :published_by)
+                    :priority, :preview, :avatar_url, :avatar_name, :created_at, :created_by,
+                    :published_at, :published_by, :text)
         SQL;
 
         $statement = $this->pdo->prepare($sql);
@@ -138,6 +142,8 @@ class ArticleRepository
         $statement->bindValue(":priority", $article->getPriority());
         $statement->bindValue(":preview", $article->getPreview());
         $statement->bindValue(":avatar_url", $article->getAvatarURL());
+        $statement->bindValue(":avatar_name", $article->getAvatarName());
+        $statement->bindValue(":text", $article->getText());
         $this->pdo->beginTransaction();
         $statement->execute();
 
@@ -174,7 +180,7 @@ class ArticleRepository
 
     public function resetPassword(string $username): string
     {
-        $newPassword = randomPassword();
+        $newPassword = random_password();
         $newPasswordHash = password_hash($newPassword, PASSWORD_DEFAULT);
         $sql = "update user set password = :password where username = :username";
         $statement = $this->pdo->prepare($sql);
@@ -226,6 +232,7 @@ class ArticleRepository
                 priority = :priority,
                 preview = :preview,
                 avatar_url = :avatar_url,
+                avatar_name = :avatar_name,
                 modified_at = :modified_at,
                 modified_by = :modified_by
             where id = :id
@@ -242,6 +249,7 @@ class ArticleRepository
         $statement->bindValue(":priority", $article->getPriority());
         $statement->bindValue(":preview", $article->getPreview());
         $statement->bindValue(":avatar_url", $article->getAvatarURL());
+        $statement->bindValue(":avatar_name", $article->getAvatarName());
         $statement->bindValue(":modified_at", now());
         $statement->bindValue(":modified_by", current_user());
         $statement->execute();
@@ -279,12 +287,32 @@ class ArticleRepository
 
     private function toArticle(array $record): ?Article
     {
-        $record['createdAt'] = str_to_date($record['createdAt']);
-        $record['modifiedAt'] = str_to_date($record['modifiedAt']);
-        $record['publishedAt'] = str_to_date($record['publishedAt']);
-        return $record != null
-            ? new Article(...$record)
-            : null;
+        if ($record == null) {
+            return null;
+        }
+        $tags = array_map(fn ($record) => $record['name'], $this->tagRepository->findArticleTags($record['id']));
+        $article = new Article(
+            $record['title'],
+            $record['category'],
+            $record['body'],
+            null,
+            $record['published'],
+            $record['isHeadline'],
+            $record['priority'],
+            $record['preview'],
+            $record['avatarURL'],
+            $record['avatarName'],
+            $tags,
+            $record['id'],
+            str_to_date($record['createdAt']),
+            $record['createdBy'],
+            str_to_date($record['modifiedAt']),
+            $record['modifiedBy'],
+            str_to_date($record['publishedAt']),
+            $record['publishedBy'],
+            null
+        );
+        return $article;
     }
 
 }

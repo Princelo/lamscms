@@ -1,6 +1,8 @@
 <?php
 
-function randomPassword(): string
+use Slim\Psr7\UploadedFile;
+
+function random_password(): string
 {
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     $pass = []; //remember to declare $pass as an array
@@ -87,4 +89,68 @@ function sql_in(array $ids, callable $fn = null): string
     }
     $inStatement = ")";
     return $inStatement;
+}
+
+function get_file_extension(string $mimetype): string
+{
+    switch ($mimetype) {
+        case "image/png":
+            return ".png";
+        case "image/jpeg":
+            return ".jpg";
+        case "image/webp":
+            return ".webp";
+        case "image/gif":
+            return ".gif";
+        case "video/webm":
+            return ".webm";
+        case "audio/webm":
+            return ".weba";
+        case "audio/wav":
+            return ".wav";
+        case "video/3gpp":
+            return ".3gp";
+        case "audio/3gpp":
+            return ".3gp";
+        case "video/3gpp2":
+            return ".3g2";
+        case "audio/3gp2":
+            return ".3g2";
+        case "video/mp2t":
+            return ".ts";
+        case "audio/opus":
+            return ".opus";
+        case "video/ogg":
+            return ".ogv";
+        case "audio/ogg":
+            return ".oga";
+        case "video/mpeg":
+            return ".mpeg";
+        case "video/mp4":
+            return ".mp4";
+        case "audio/mpeg":
+            return ".mp3";
+        case "audio/midi":
+            return ".mid";
+        case "audio/x-midi":
+            return ".mid";
+        case "image/bmp":
+            return ".bmp";
+        case "image/avif":
+            return ".avif";
+        case "video/x-msvideo":
+            return ".avi";
+        case "audio/aac":
+            return ".aac";
+        default:
+            return "bin";
+    }
+}
+
+function get_mimetype(UploadedFile $uploadedFile): string
+{
+    $finfo = new \finfo(FILEINFO_MIME);
+    $mimetype = $finfo->file($uploadedFile->getFilePath());
+    $mimetypeParts = preg_split('/\s*[;,]\s*/', $mimetype);
+    return strtolower($mimetypeParts[0]);
 }

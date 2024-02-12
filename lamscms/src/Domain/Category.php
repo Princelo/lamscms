@@ -17,6 +17,7 @@ class Category implements JsonSerializable
         private ?int $id = null,
         private ?int $parentID = null,
         private ?string $parent = null,
+        private ?array $children = [],
     )
     {
     }
@@ -117,6 +118,11 @@ class Category implements JsonSerializable
         return $this->detailPageTemplate;
     }
 
+    public function setChildren(array $children)
+    {
+        $this->children = $children;
+    }
+
     /**
      * @return array
      */
@@ -132,7 +138,8 @@ class Category implements JsonSerializable
             'hidden' => $this->hidden,
             'containsContent' => $this->containsContent,
             'listPageTemplate' => $this->listPageTemplate,
-            'detailPageTemplate' => $this->detailPageTemplate
+            'detailPageTemplate' => $this->detailPageTemplate,
+            'children' => $this->children
         ];
     }
 }

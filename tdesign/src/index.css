@@ -1,4 +1,4 @@
-.tdesign-demo-block-column{display:flex;flex-direction:column;row-gap:16px}.tdesign-demo-block-column-large{display:flex;flex-direction:column;row-gap:32px}.tdesign-demo-block-row{display:flex;column-gap:16px;align-items:center}
+/*.tdesign-demo-block-column{display:flex;flex-direction:column;row-gap:16px}.tdesign-demo-block-column-large{display:flex;flex-direction:column;row-gap:32px}.tdesign-demo-block-row{display:flex;column-gap:16px;align-items:center}*/
 .code-config{padding: 12px;}
 .code-config label {width: 80px; margin-right: 6px; display: block; float: left; line-height: 24px;}
 .code-editor{padding: 12px;}
@@ -148,8 +148,27 @@ cursor: pointer;}
 .kof-tip-disabled:hover {cursor: not-allowed}
 
 body {
-  font-family: PingFang TC, Microsoft Jhenghei, PingFang SC, Microsoft Yahei, Arial Regular
+  font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif, Arial Regular, Hiragino Sans, PingFang TC, Microsoft Jhenghei, PingFang SC, Microsoft Yahei
 }
+
+body[lang='zh-tw'] {
+  font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif, Arial Regular, Hiragino Sans CNS, PingFang TC, Microsoft Jhenghei, PingFang SC, Microsoft Yahei
+}
+body[lang='zh-cn'] {
+  font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif, Arial Regular, Hiragino Sans GB, PingFang SC, Microsoft Yahei, PingFang TC, Microsoft Jhenghei
+}
+
+span[lang='en'] {
+  font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif, Arial Regular, Hiragino Sans, PingFang TC, Microsoft Jhenghei, PingFang SC, Microsoft Yahei
+}
+
+span[lang='zh-tw'] {
+  font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif, Arial Regular, Hiragino Sans CNS, PingFang TC, Microsoft Jhenghei, PingFang SC, Microsoft Yahei
+}
+span[lang='zh-cn'] {
+  font-family: "SF Pro Text","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif, Arial Regular, Hiragino Sans GB, PingFang SC, Microsoft Yahei, PingFang TC, Microsoft Jhenghei
+}
+
 
 .t-popup ul {
   margin: 0; padding: 0;

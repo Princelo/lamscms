@@ -16,13 +16,12 @@ export default (props) => {
     const translate = translateWithLanguage(props.language)
 
     const formRef = useRef();
+    const username = localStorage.getItem('user').username??'adminlo'
 
     const onSubmit = (e) => {
         if (e.validateResult === true) {
-            let username = localStorage.getItem('user').username??'adminlo';
-            let oldPassword = formRef.current.getAllFieldsValue()['old-password'];
-            let password = formRef.current.getAllFieldsValue()['password'];
-            console.log(formRef.current.getAllFieldsValue());
+            let oldPassword = formRef.current.getFieldValue('old-password')
+            let password = formRef.current.getFieldValue('password')
             const requestOptions = {
                 crossDomain:true,
                 method: 'POST',
@@ -90,7 +89,7 @@ export default (props) => {
                     <Form ref={formRef} statusIcon={true} onSubmit={onSubmit} colon labelWidth={180}
                           rules={rules}>
                         <h1 style={{marginBottom: 48}}>{translate('Change Password')}</h1>
-                        <FormItem label={translate('Login Name')} name="login-name">
+                        <FormItem label={translate('Login Name')} initialData={username} name="login-name">
                             <Input  disabled placeholder={user.username}/>
                         </FormItem>
                         <FormItem label={translate('Old Password')} name="old-password">

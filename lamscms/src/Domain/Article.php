@@ -16,6 +16,7 @@ class Article implements JsonSerializable
         private int $priority = 0,
         private string|null $preview = null,
         private string|null $avatarURL = null,
+        private string|null $avatarName = null,
         private array|null $tags = null,
         private int|null $id = null,
         private ?DateTime $createdAt = null,
@@ -23,7 +24,8 @@ class Article implements JsonSerializable
         private ?DateTime $modifiedAt = null,
         private string|null $modifiedBy = null,
         private ?DateTime $publishedAt = null,
-        private string|null $publishedBy = null
+        private string|null $publishedBy = null,
+        private string|null $text = null
     )
     {
     }
@@ -98,6 +100,14 @@ class Article implements JsonSerializable
     public function getAvatarURL(): ?string
     {
         return $this->avatarURL;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAvatarName(): ?string
+    {
+        return $this->avatarName;
     }
 
     /**
@@ -178,6 +188,21 @@ class Article implements JsonSerializable
     }
 
     /**
+     * @param string $text
+     */
+    public function setText(string $text): void {
+        $this->text = $text;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getText(): ?string
+    {
+        return $this->text;
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize(): array
@@ -193,6 +218,7 @@ class Article implements JsonSerializable
             'priority' => $this->priority,
             'preview' => $this->preview,
             'avatarURL' => $this->avatarURL,
+            'avatarName' => $this->avatarName,
             'tags' => $this->tags,
             'createdAt' => $this->createdAt?->format('Y-m-d H:i:s'),
             'createdBy' => $this->createdBy,
@@ -200,6 +226,7 @@ class Article implements JsonSerializable
             'modifiedBy' => $this->modifiedBy,
             'publishedAt' => $this->publishedAt?->format('Y-m-d H:i:s'),
             'publishedBy' => $this->publishedBy,
+            'text' => $this->text,
         ];
     }
 }
